@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# Search for any existing administrator's account present in the system
+ 
+SearchAdmin =$(sudo dscl . list /Users | egrep -v "^_" | egrep -w "administrator")
+ 
+ 
+if [[ $SearchAdmin == "administrator" ]]; then
+ 
+echo "the username $SearchAdmin already exists"
+ 
+else
+ 
+echo "User does not exist"
+
+# creates admin account with admin privilege 
+sudo /usr/sbin/sysadminctl -addUser administrator -fullName "administrator" -UID=administrator -password '*********'
+ 
+ 
+fi
+# Here looping every user using azure tenant name excluding administrator user account to change the user privilege from admin to standard. 
+ 
+StandardUser=$(sudo dscl . list /Users | grep -e 'administrator')
+ 
+if [[ $StandardUser == *contoso.com* ]]; then
+ 
+echo "user $StandardUser exist in the system"
+ 
+sudo /usr/sbin/dseditgroup -o edit -d $StandardUser -t user admin
+ 
+else
+ 
+  echo "No Match found"
+ 
+fi
